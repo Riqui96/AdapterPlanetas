@@ -1,11 +1,16 @@
 package unicauca.movil.adapterplanetas;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.SensorManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,10 +22,11 @@ import unicauca.movil.adapterplanetas.adapters.PlanetaAdapter;
 import unicauca.movil.adapterplanetas.models.Planeta;
 import unicauca.movil.adapterplanetas.util.Data;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener{
 
     ListView list;
     PlanetaAdapter adapter;
+    int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
         list.setAdapter(adapter);
         loadPlanetas();
+
+        registerForContextMenu(list); //Especifica que la lista contiene un menu contextual
     }
 
     //region Load Data
@@ -57,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    //region Options Menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -69,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()){
 
             case R.id.action_add:
-                Intent intent = new Intent(this, AddActivity.class);
+                Intent intent = new Intent(this, AddActivity .class);
                 startActivity(intent);
                 break;
 
@@ -80,4 +89,42 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    //endregion
+
+
+    //region Menu Contextual y AlerDialog
+    //Incocamos que menu queremos mostrar para que view
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        getMenuInflater().inflate(R.menu.list, menu);
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    //Detectamos que elemento se selecciono
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        pos = info.position;
+
+        switch (item.getItemId()){
+            case R.id.action_delete:
+                AlertDialog alert = new AlertDialog.Builder(this)
+                    .setTitle("Eliminar")
+                    .setMessage("Desea eliminar el planeta")
+                    .setPositiveButton("Aceptar", this)
+                    .setNegativeButton("Cancelar", this)
+                    .create();
+                alert.show();
+                break;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        if(i == DialogInterface.BUTTON_POSITIVE)
+            Data.planetas.remove(pos);
+            adapter.notifyDataSetChanged();
+    }
+    //endregion
 }
