@@ -1,5 +1,6 @@
 package unicauca.movil.adapterplanetas;
 
+import android.content.Intent;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,12 +15,12 @@ import java.util.List;
 
 import unicauca.movil.adapterplanetas.adapters.PlanetaAdapter;
 import unicauca.movil.adapterplanetas.models.Planeta;
+import unicauca.movil.adapterplanetas.util.Data;
 
 public class MainActivity extends AppCompatActivity {
 
     ListView list;
     PlanetaAdapter adapter;
-    List<Planeta> data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         list = (ListView) findViewById(R.id.list);
-        data = new ArrayList<>();
-        adapter = new PlanetaAdapter(this, data);
+        Data.planetas = new ArrayList<>();
+        adapter = new PlanetaAdapter(this, Data.planetas);
 
         list.setAdapter(adapter);
         loadPlanetas();
@@ -41,14 +42,20 @@ public class MainActivity extends AppCompatActivity {
         Planeta p2 = new Planeta("Marte", SensorManager.GRAVITY_MARS);
         Planeta p3 = new Planeta("Estrella de la muerte", SensorManager.GRAVITY_DEATH_STAR_I );
 
-        data.add(p1);
-        data.add(p2);
-        data.add(p3);
+        Data.planetas.add(p1);
+        Data.planetas.add(p2);
+        Data.planetas.add(p3);
 
         adapter.notifyDataSetChanged();
     }
     //endregion
 
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        adapter.notifyDataSetChanged();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -62,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()){
 
             case R.id.action_add:
-                Toast.makeText(this, "Presionaste ADD", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, AddActivity.class);
+                startActivity(intent);
                 break;
 
             case R.id.action_more:

@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import unicauca.movil.adapterplanetas.models.Planeta;
+import unicauca.movil.adapterplanetas.util.Data;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -29,8 +30,10 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     public void onClick(View view) {
         String n = nombre.getText().toString();
         String g = gravedad.getText().toString();
-        Planeta p = new Planeta(n, Float.parseFloat(g));
 
+        Planeta p = new Planeta(n, Float.parseFloat(g));
+        Data.planetas.add(p);
+        finish(); // Metodo que invoca la destruccion del activity actual
 
     }
 }
